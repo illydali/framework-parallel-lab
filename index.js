@@ -25,10 +25,11 @@ app.use(
 
 // importing routes in 
 const landingRoutes = require('./routes/landing')
-
+const posterRoutes = require('./routes/posters')
 
 async function main() {
     app.use('/', landingRoutes)
+    app.use('/posters', posterRoutes)
 }
 
 main();
