@@ -20,31 +20,7 @@ const {
     checkIfAuthenticated
 } = require('../middlewares');
 
-async function getPosterId(posterId) {
-    // eqv of
-    // select * from posters where id = ${posterId}
-    const poster = await Poster.where({
-        'id': posterId
-    }).fetch({
-        'require': true,
-        'withRelated': ['media_property', 'tags']
-    })
-    return poster;
-}
-
-async function getAllProperties() {
-    const allProps = await Media_Property.fetchAll().map(media => {
-        return [media.get('id'), media.get('name')]
-    })
-    return allProps;
-}
-
-async function getAllTags() {
-    const allTags = await Tag.fetchAll().map(tag => {
-        return [tag.get('id'), tag.get('name')]
-    })
-    return allTags;
-}
+const dataLayer = require('../dal/posters')
 
 router.get('/', async (req, res) => {
 
@@ -56,12 +32,12 @@ router.get('/', async (req, res) => {
     // })
 
     // 1. get all the categories
-    const allProps= await getAllProperties()
+    const allProps= await dataLayer.getAllProperties()
     allProps.unshift([0, 'All']);
 
 
     // 2. Get all the tags
-    const allTags = await getAllTags()
+    const allTags = await dataLayer.getAllTags()
 
     // 3. Create search form 
     const searchForm = createSearchForm(allProps, allTags);
@@ -140,8 +116,8 @@ router.get('/', async (req, res) => {
 
 router.get('/create', checkIfAuthenticated, async (req, res) => {
 
-    const allProps = await getAllProperties();
-    const allTags = await getAllTags();
+    const allProps = await dataLayer.getAllProperties();
+    const allTags = await dataLayer.getAllTags();
     const posterForm = createPosterForm(allProps, allTags);
     res.render('posters/create', {
         'form': posterForm.toHTML(bootstrapField),
@@ -153,8 +129,8 @@ router.get('/create', checkIfAuthenticated, async (req, res) => {
 
 router.post('/create', checkIfAuthenticated, async (req, res) => {
 
-    const allProps = await getAllProperties();
-    const allTags = await getAllTags();
+    const allProps = await dataLayer.getAllProperties();
+    const allTags = await dataLayer.getAllTags();
     const posterForm = createPosterForm(allProps, allTags);
     posterForm.handle(req, {
         'success': async (form) => {
@@ -190,10 +166,10 @@ router.post('/create', checkIfAuthenticated, async (req, res) => {
 })
 
 router.get('/:id/update', async (req, res) => {
-    const allProps = await getAllProperties();
-    const allTags = await getAllTags();
+    const allProps = await dataLayer.getAllProperties();
+    const allTags = await dataLayer.getAllTags();
     // retrieve the poster
-    const poster = await getPosterId(req.params.id)
+    const poster = await dataLayer.getPosterId(req.params.id)
 
     const posterForm = createPosterForm(allProps, allTags);
 
@@ -225,9 +201,9 @@ router.get('/:id/update', async (req, res) => {
 })
 
 router.post('/:id/update', async (req, res) => {
-    const allProps = await getAllProperties();
-    const allTags = await getAllTags();
-    const poster = await getPosterId(req.params.id)
+    const allProps = await dataLayer.getAllProperties();
+    const allTags = await dataLayer.getAllTags();
+    const poster = await dataLayer.getPosterId(req.params.id)
     // process the form
     const posterForm = createPosterForm(allProps, allTags);
 
@@ -264,7 +240,7 @@ router.post('/:id/update', async (req, res) => {
 
 router.get('/:id/delete', async (req, res) => {
     // fetch the poster that we want to delete
-    const poster = await getPosterId(req.params.id)
+    const poster = await dataLayer.getPosterId(req.params.id)
 
     res.render('posters/delete', {
         'poster': poster.toJSON()
@@ -274,7 +250,7 @@ router.get('/:id/delete', async (req, res) => {
 
 router.get('/:id/delete', async (req, res) => {
     // fetch the poster that we want to delete
-    const poster = await getPosterId(req.params.id)
+    const poster = await dataLayer.getPosterId(req.params.id)
 
     await poster.destroy();
     res.redirect('/posters')
