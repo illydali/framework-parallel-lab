@@ -11,7 +11,42 @@
     <title>Hello, world!</title>
   </head>
     <body>
-    <div class="container">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">A Poster Shop</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
+                aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/posters">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/posters/create">Add New</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/users/profile">Profile</a>
+                    </li>
+                </ul>
+                <div>
+                    {{#if user}}
+                    Hi, {{user.username}}
+
+                    <a href="/users/logout" class="ml-3 btn btn-primary btn-sm">Logout</a>
+
+                    {{else}}
+
+                    Hi, stranger
+
+                    <a href="/users/login" class="ml-3 btn btn-primary btn-sm">Login</a>
+
+                    {{/if}}
+                </div>
+            </div>
+        </nav>
+
+    <section class="container">
       {{#if success_messages }}        
             {{#each success_messages}}
                 <div class="alert alert-success">
@@ -30,7 +65,7 @@
         {{/if}}
 
     {{#block 'content'}}{{/block}}
-    </div>
+    </section>
     <!-- Optional JavaScript -->
     
    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>

@@ -3,7 +3,9 @@ const router = express.Router();
 
 // #1 import in the model
 const {
-    Poster, Media_Property, Tag
+    Poster,
+    Media_Property,
+    Tag
 } = require('../models')
 
 // import in forms
@@ -12,6 +14,11 @@ const {
     createPosterForm
 } = require('../forms');
 
+// import in the CheckIfAuthenticated middleware
+const {
+    checkIfAuthenticated
+} = require('../middlewares');
+
 async function getPosterId(posterId) {
     // eqv of
     // select * from products where id = ${productId}
@@ -19,7 +26,7 @@ async function getPosterId(posterId) {
         'id': posterId
     }).fetch({
         'require': true,
-        'withRelated': ['media_property', 'tags'] 
+        'withRelated': ['media_property', 'tags']
     })
     return poster;
 }
@@ -39,16 +46,16 @@ async function getAllTags() {
 }
 
 router.get('/', async (req, res) => {
-    
+
     let posters = await Poster.collection().fetch({
         withRelated: ['media_property', 'tags']
     });
     res.render('posters/index', {
-        'posters': posters.toJSON() 
+        'posters': posters.toJSON()
     })
 })
 
-router.get('/create', async (req, res) => {
+router.get('/create', checkIfAuthenticated, async (req, res) => {
 
     const allProps = await getAllProperties();
     const allTags = await getAllTags();
@@ -58,15 +65,18 @@ router.get('/create', async (req, res) => {
     })
 })
 
-router.post('/create', async (req, res) => {
+router.post('/create', checkIfAuthenticated, async (req, res) => {
 
-    const allProps = await getAllProperties(); 
+    const allProps = await getAllProperties();
     const allTags = await getAllTags();
     const posterForm = createPosterForm(allProps, allTags);
     posterForm.handle(req, {
         'success': async (form) => {
-            let { tags, ...posterData } = form.data
- 
+            let {
+                tags,
+                ...posterData
+            } = form.data
+
             const poster = new Poster(posterData);
             // poster.set('title', form.data.title);
             // poster.set('cost', form.data.cost);
@@ -96,7 +106,7 @@ router.post('/create', async (req, res) => {
 router.get('/:id/update', async (req, res) => {
     const allProps = await getAllProperties();
     const allTags = await getAllTags();
-     // retrieve the product
+    // retrieve the product
     const poster = await getPosterId(req.params.id)
 
     const posterForm = createPosterForm(allProps, allTags);
@@ -127,10 +137,13 @@ router.post('/:id/update', async (req, res) => {
     const poster = await getPosterId(req.params.id)
     // process the form
     const posterForm = createPosterForm(allProps, allTags);
-    
+
     posterForm.handle(req, {
-        'success' : async (form) => {
-            let { tags, ...posterData } = form.data
+        'success': async (form) => {
+            let {
+                tags,
+                ...posterData
+            } = form.data
             poster.set(posterData);
             poster.save();
 
@@ -139,7 +152,7 @@ router.post('/:id/update', async (req, res) => {
             let existingTagIds = await poster.related('tags').pluck('id');
 
             // remove all the tags that arent selected
-            let toRemove = existingTagIds.filter( id => tagIds.includes(id) === false )
+            let toRemove = existingTagIds.filter(id => tagIds.includes(id) === false)
             await poster.tags().detach(toRemove);
 
             // add in all the tags selected in the form 
@@ -152,11 +165,11 @@ router.post('/:id/update', async (req, res) => {
                 'form': form.toHTML(bootstrapField),
                 'poster': poster.toJSON()
             })
-        } 
+        }
     })
 })
 
-router.get('/:id/delete', async(req,res)=>{
+router.get('/:id/delete', async (req, res) => {
     // fetch the product that we want to delete
     const poster = await getPosterId(req.params.id)
 
@@ -166,11 +179,11 @@ router.get('/:id/delete', async(req,res)=>{
 
 });
 
-router.get('/:id/delete', async(req,res)=>{
+router.get('/:id/delete', async (req, res) => {
     // fetch the product that we want to delete
     const poster = await getPosterId(req.params.id)
 
-    await poster.destroy(); 
+    await poster.destroy();
     res.redirect('/posters')
 
 });
