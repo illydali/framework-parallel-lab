@@ -21,7 +21,7 @@ const {
 
 async function getPosterId(posterId) {
     // eqv of
-    // select * from products where id = ${productId}
+    // select * from posters where id = ${posterId}
     const poster = await Poster.where({
         'id': posterId
     }).fetch({
@@ -61,7 +61,10 @@ router.get('/create', checkIfAuthenticated, async (req, res) => {
     const allTags = await getAllTags();
     const posterForm = createPosterForm(allProps, allTags);
     res.render('posters/create', {
-        'form': posterForm.toHTML(bootstrapField)
+        'form': posterForm.toHTML(bootstrapField),
+        cloudinaryName: process.env.CLOUDINARY_NAME,
+        cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+        cloudinaryPreset: process.env.CLOUDINARY_UPLOAD_PRESET
     })
 })
 
@@ -106,7 +109,7 @@ router.post('/create', checkIfAuthenticated, async (req, res) => {
 router.get('/:id/update', async (req, res) => {
     const allProps = await getAllProperties();
     const allTags = await getAllTags();
-    // retrieve the product
+    // retrieve the poster
     const poster = await getPosterId(req.params.id)
 
     const posterForm = createPosterForm(allProps, allTags);
@@ -121,13 +124,20 @@ router.get('/:id/update', async (req, res) => {
     posterForm.fields.width.value = poster.get('width');
     posterForm.fields.media_property_id.value = poster.get('media_property')
 
+    // 1 - set the image url in the poster form
+    posterForm.fields.image_url.value = poster.get('image_url');
+
 
     let selectedTags = await poster.related('tags').pluck('id');
     posterForm.fields.tags.value = selectedTags
 
     res.render('posters/update', {
         'form': posterForm.toHTML(bootstrapField),
-        'poster': poster.toJSON()
+        'poster': poster.toJSON(),
+        // 2 - send to the HBS file the cloudinary information
+        cloudinaryName: process.env.CLOUDINARY_NAME,
+        cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+        cloudinaryPreset: process.env.CLOUDINARY_UPLOAD_PRESET
     })
 })
 
@@ -170,7 +180,7 @@ router.post('/:id/update', async (req, res) => {
 })
 
 router.get('/:id/delete', async (req, res) => {
-    // fetch the product that we want to delete
+    // fetch the poster that we want to delete
     const poster = await getPosterId(req.params.id)
 
     res.render('posters/delete', {
@@ -180,7 +190,7 @@ router.get('/:id/delete', async (req, res) => {
 });
 
 router.get('/:id/delete', async (req, res) => {
-    // fetch the product that we want to delete
+    // fetch the poster that we want to delete
     const poster = await getPosterId(req.params.id)
 
     await poster.destroy();
