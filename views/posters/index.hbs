@@ -12,6 +12,8 @@
             <th>Date</th>
             <th>Height</th>
             <th>Width</th>
+            <th>Media Property</th>
+            <th>Tags</th>
             <th></th>
         </tr>
 
@@ -42,6 +44,14 @@
                 </td>
                 <td>
                     {{this.width}}
+                </td>
+                <td>
+                    {{this.media_property.name}}
+                </td>
+                <td>
+                    {{#each this.tags}}
+                    <span class="badge bg-dark">{{this.name}}</span>
+                    {{/each}}
                 </td>
                  <td>
                 <a href="/posters/{{this.id}}/update" class="btn btn-primary btn-sm">Update</a>
