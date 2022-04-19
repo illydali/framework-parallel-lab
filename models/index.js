@@ -24,8 +24,13 @@ const Tag = bookshelf.model('Tag',{
     }
 })
 
+const User = bookshelf.model('User', {
+    tableName: 'users',
+})
+
 module.exports = {
     Poster,
     Media_Property,
-    Tag
+    Tag,
+    User
 };

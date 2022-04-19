@@ -1,5 +1,8 @@
 // import in caolan forms
 const forms = require("forms");
+const {
+    password
+} = require("forms/lib/widgets");
 // create some shortcuts
 const fields = forms.fields;
 const validators = forms.validators;
@@ -29,46 +32,46 @@ var bootstrapField = function (name, object) {
 
 const createPosterForm = (media_properties, tags) => {
     return forms.create({
-        'title' : fields.string({
+        'title': fields.string({
             required: true,
             errorAfterField: true
         }),
         'cost': fields.string({
             required: true,
             errorAfterField: true,
-            'validators':[validators.integer(), validators.min(0)]
+            'validators': [validators.integer(), validators.min(0)]
         }),
-        'description' : fields.string({
+        'description': fields.string({
             required: true,
             errorAfterField: true
         }),
-        'date' : fields.string({
+        'date': fields.string({
             required: true,
             errorAfterField: true,
             widget: widgets.date()
         }),
-        'stock' : fields.string({
+        'stock': fields.string({
             required: true,
             errorAfterField: true
         }),
-        'height' : fields.string({
+        'height': fields.string({
             required: true,
             errorAfterField: true,
-            'validators':[validators.integer(), validators.min(0)]
+            'validators': [validators.integer(), validators.min(0)]
         }),
-        'width' : fields.string({
+        'width': fields.string({
             required: true,
             errorAfterField: true,
-            'validators':[validators.integer(), validators.min(0)]
+            'validators': [validators.integer(), validators.min(0)]
         }),
-        'media_property_id' : fields.string({
+        'media_property_id': fields.string({
             label: 'Media Property',
             required: true,
             errorAfterField: true,
             widget: widgets.select(),
             choices: media_properties
         }),
-        'tags' : fields.string({
+        'tags': fields.string({
             required: true,
             errorAfterField: true,
             widget: widgets.multipleSelect(),
@@ -77,4 +80,44 @@ const createPosterForm = (media_properties, tags) => {
     })
 }
 
-module.exports = {createPosterForm, bootstrapField}
+const createRegistrationForm = () => {
+    return forms.create({
+        'username': fields.string({
+            required: true,
+            errorAfterField: true,
+        }),
+        'email': fields.string({
+            required: true,
+            errorAfterField: true,
+        }),
+        'password': fields.password({
+            required: true,
+            errorAfterField: true,
+        }),
+        'confirm_password': fields.password({
+            required: true,
+            errorAfterField: true,
+            validators: [validators.matchField('password')]
+        })
+    })
+}
+
+const createLoginForm = () => {
+    return forms.create({
+        'email': fields.string({
+            'required': true,
+            'errorAfterField': true,
+        }),
+        'password': fields.password({
+            'required': true,
+            'errorAfterField': true
+        })
+    })
+}
+
+module.exports = {
+    bootstrapField,
+    createPosterForm,
+    createRegistrationForm,
+    createLoginForm,
+}
