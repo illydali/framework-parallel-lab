@@ -118,9 +118,47 @@ const createLoginForm = () => {
     })
 }
 
+const createSearchForm = (media_properties, tags) => {
+    return forms.create ({
+        'title' : fields.string({
+            required: false,
+            errorAfterField: true,
+        }),
+        'min_cost': fields.string({
+            required: false,
+            errorAfterField: true,
+            validators: [validators.integer(), validators.min(0)]
+        }),
+        'max_cost': fields.string({
+            required: false,
+            errorAfterField: true,
+            validators: [validators.integer(), validators.min(0)]
+        }),
+        'max_height' : fields.string({
+            required: false,
+            errorAfterField: true,
+            validators: [validators.integer(), validators.min(0)]
+        }),
+        'media_property_id': fields.string({
+            label: 'Media Property',
+            required: false,
+            errorAfterField: true,
+            widget: widgets.select(),
+            choices: media_properties
+        }),
+        'tags': fields.string({
+            required: false,
+            errorAfterField: true,
+            widget: widgets.multipleSelect(),
+            choices: tags
+        })
+    })
+}
+
 module.exports = {
     bootstrapField,
     createPosterForm,
     createRegistrationForm,
     createLoginForm,
+    createSearchForm
 }

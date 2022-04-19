@@ -11,7 +11,8 @@ const {
 // import in forms
 const {
     bootstrapField,
-    createPosterForm
+    createPosterForm,
+    createSearchForm
 } = require('../forms');
 
 // import in the CheckIfAuthenticated middleware
@@ -47,11 +48,93 @@ async function getAllTags() {
 
 router.get('/', async (req, res) => {
 
-    let posters = await Poster.collection().fetch({
-        withRelated: ['media_property', 'tags']
-    });
-    res.render('posters/index', {
-        'posters': posters.toJSON()
+    // let posters = await Poster.collection().fetch({
+    //     withRelated: ['media_property', 'tags']
+    // });
+    // res.render('posters/index', {
+    //     'posters': posters.toJSON()
+    // })
+
+    // 1. get all the categories
+    const allProps= await getAllProperties()
+    allProps.unshift([0, 'All']);
+
+
+    // 2. Get all the tags
+    const allTags = await getAllTags()
+
+    // 3. Create search form 
+    const searchForm = createSearchForm(allProps, allTags);
+
+    // 1. Begin with an always true query
+    // ... creating a query object ( a query object represents one SQL staetement)
+    // this is just a query and has not been executed yet
+    let q = Poster.collection(); // eqv to the query "SELECT * FROM posters WHERE 1"
+
+    searchForm.handle(req, {
+        'empty': async (form) => {
+            let posters = await q.fetch({
+                withRelated: ['media_property', 'tags']
+            })
+
+            res.render('posters/index', {
+                'searchForm': form.toHTML(bootstrapField),
+                'posters': posters.toJSON()
+
+            })
+        },
+        'error': async (form) => {
+            let posters = await q.fetch({
+                withRelated: ['media_property', 'tags']
+            })
+
+            res.render('posters/index', {
+                'searchForm': form.toHTML(bootstrapField),
+                'posters': posters.toJSON()
+
+            })
+        },
+        'success': async (form) => {
+            // 2. check if the user has provided any search parameters
+            if (form.data.title) {
+                q.where('title', 'like', '%' + form.data.title + '%');
+            }
+
+            if (form.data.min_cost) {
+                q.where('cost', '>=', form.data.min_cost);
+            }
+
+            if (form.data.max_cost) {
+                q.where('cost', '<=', form.data.max_cost);
+            }
+
+            if (form.data.max_height) {
+                q.where('height' , '<=' , form.data.max_height)
+            }
+
+            if (form.data.media_property_id && form.data.media_property_id != '0') {
+                q.where('media_property_id', '=', form.data.media_property_id)
+            }
+
+            if (form.data.tags) {
+                // joining in bookshelf:
+                q.query('join', 'posters_tags', 'posters.id', 'poster_id')
+                    .where('tag_id', 'in', form.data.tags.split(','))
+                // eqv:
+                // SELECT * FROM posters JOIN posters_tags ON posters.id = poster_id
+                // WHERE tag_id in (1,4)
+            }
+
+            // 3. execute the query and fetch the results
+            let posters = await q.fetch({
+                withRelated: ['media_property', 'tags']
+            }); // execute the query
+
+            res.render('posters/index', {
+                'posters': posters.toJSON(),
+                'searchForm': form.toHTML(bootstrapField)
+            })
+        }
     })
 })
 

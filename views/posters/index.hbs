@@ -1,6 +1,11 @@
 {{#extends 'base'}}
 
 {{#block 'content'}}
+<h1> What's Available </h1>
+    <form method="GET">
+        {{{searchForm}}}
+        <input type="submit" class="btn btn-primary mt-3"/>
+    </form>
 <table class="table">
     <thead>
         <tr>
