@@ -82,6 +82,7 @@ router.post('/create', async (req, res) => {
             if (tags) {
                 await poster.tags().attach(tags.split(','))
             }
+            req.flash("success_messages", `New Poster ${poster.get('title')} has been created`)
             res.redirect('/posters')
         },
         'error': async (form) => {

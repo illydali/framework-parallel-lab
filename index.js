@@ -3,6 +3,11 @@ const hbs = require("hbs");
 const wax = require("wax-on");
 require("dotenv").config();
 
+// adding flash and sessions
+const session = require('express-session');
+const flash = require('connect-flash');
+const FileStore = require('session-file-store')(session);
+
 // create an instance of express app
 let app = express();
 
@@ -22,6 +27,24 @@ app.use(
         extended: false
     })
 );
+
+// set up sessions
+app.use (session ({
+    store: new FileStore(),
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true
+}))
+
+// set up flash messages
+app.use(flash()) 
+
+// Register Flash middleware
+app.use(function (req, res, next) {
+    res.locals.success_messages = req.flash("success_messages");
+    res.locals.error_messages = req.flash("error_messages");
+    next();
+})
 
 // importing routes in 
 const landingRoutes = require('./routes/landing')
