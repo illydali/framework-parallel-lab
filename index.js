@@ -94,15 +94,23 @@ const posterRoutes = require('./routes/posters')
 const userRoutes = require('./routes/users')
 const cloudinaryRoutes = require('./routes/cloudinary')
 const cartRoutes = require('./routes/shoppingCart')
-const checkoutRoutes = require('./routes/checkout')
+const checkoutRoutes = require('./routes/checkout');
+const { checkIfAuthenticated } = require("./middlewares");
+const api = {
+    posters: require('./routes/api/posters'),
+    users: require('./routes/api/users')
+}
+
 
 async function main() {
     app.use('/', landingRoutes)
     app.use('/posters', posterRoutes)
     app.use('/users', userRoutes)
     app.use('/cloudinary', cloudinaryRoutes)
-    app.use('/cart', cartRoutes)
+    app.use('/cart', checkIfAuthenticated, cartRoutes)
     app.use('/checkout', checkoutRoutes)
+    app.use('/api/posters', express.json() ,api.posters)
+    app.use('/api/users', express.json(), api.users)
 }
 
 main();
