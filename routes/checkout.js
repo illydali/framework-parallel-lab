@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
     let meta = [];
     for (let item of items) {
         const lineItem = {
-            'title': item.related('poster').get('title'),
+            'name': item.related('poster').get('title'),
             'amount': item.related('poster').get('cost'),
             'quantity': item.get('quantity'),
             'currency': 'SGD'
@@ -49,8 +49,15 @@ router.get('/', async (req, res) => {
         'sessionId': stripeSession.id, // 4. Get the ID of the session
         'publishableKey': process.env.STRIPE_PUBLISHABLE_KEY
     })
-
-
 })
+
+router.get('/success', function(req,res){
+    res.render('checkout/success')
+})
+
+router.get('/cancelled', function(req,res){
+    res.render('checkout/cancelled')
+})
+
 
 module.exports = router;
