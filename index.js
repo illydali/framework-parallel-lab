@@ -55,7 +55,19 @@ app.use(function(req,res,next){
     next();
 })
 
-app.use(csrf());
+// app.use(csrf());
+// app.use(csrf());
+const csurfInstance = csrf();  // creating a prox of the middleware
+app.use(function(req,res,next){
+    // if it is webhook url, then call next() immediately
+    // or if the url is for the api, then also exclude from csrf
+    if (req.url === '/checkout/process_payment' || 
+        req.url.slice(0,5)=='/api/') {
+        next();
+    } else {
+        csurfInstance(req,res,next);
+    }
+})
 
 app.use(function (err, req, res, next) {
     if (err && err.code == "EBADCSRFTOKEN") {
@@ -67,8 +79,12 @@ app.use(function (err, req, res, next) {
 });
 
 // Share CSRF with hbs files
+// the req.csrfToken() generates a new token
+// and save it to the current session
 app.use(function(req,res,next){
-    res.locals.csrfToken = req.csrfToken();
+    if (req.csrfToken) {
+        res.locals.csrfToken = req.csrfToken();
+    }
     next();
 })
 
