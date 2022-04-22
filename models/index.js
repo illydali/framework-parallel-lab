@@ -38,10 +38,15 @@ const CartItem = bookshelf.model('CartItem', {
     }
 })
 
+const BlacklistedToken = bookshelf.model('BlacklistedToken', {
+    tableName: 'blacklisted_tokens',
+})
+
 module.exports = {
     Poster,
     Media_Property,
     Tag,
     User,
-    CartItem
+    CartItem,
+    BlacklistedToken
 };

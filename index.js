@@ -1,6 +1,7 @@
 const express = require("express");
 const hbs = require("hbs");
 const wax = require("wax-on");
+const cors = require("cors")
 require("dotenv").config();
 
 // adding flash and sessions
@@ -12,7 +13,7 @@ const FileStore = require('session-file-store')(session);
 const csrf = require('csurf')
 
 // create an instance of express app
-let app = express();
+const app = express();
 
 // set the view engine
 app.set("view engine", "hbs");
@@ -30,6 +31,19 @@ app.use(
         extended: false
     })
 );
+
+// custom middlewares
+app.use(function(req,res,next){
+    // declare a varianle named
+    // date that is available for
+    // all hbs file to access
+    res.locals.date = Date();
+
+    next(); // forward the request to the next middleware
+            // or if there is no middleware,to the intended route function
+})
+
+app.use(cors()); // make sure to enable cors before sessions
 
 // set up sessions
 app.use (session ({
@@ -56,7 +70,6 @@ app.use(function(req,res,next){
 })
 
 // app.use(csrf());
-// app.use(csrf());
 const csurfInstance = csrf();  // creating a prox of the middleware
 app.use(function(req,res,next){
     // if it is webhook url, then call next() immediately
@@ -69,10 +82,13 @@ app.use(function(req,res,next){
     }
 })
 
+// middleware to handle csrf errors
+// if a middleware function takes 4 arguments
+// the first argument is error
 app.use(function (err, req, res, next) {
     if (err && err.code == "EBADCSRFTOKEN") {
         req.flash('error_messages', 'The form has expired. Please try again');
-        res.redirect('back');
+        res.redirect('back'); // go back one page
     } else {
         next()
     }
@@ -103,7 +119,12 @@ const api = {
 
 
 async function main() {
-    app.use('/', landingRoutes)
+
+    app.get('/', function(req,res){
+        res.redirect('/landing');
+    })
+
+    app.use('/landing', landingRoutes)
     app.use('/posters', posterRoutes)
     app.use('/users', userRoutes)
     app.use('/cloudinary', cloudinaryRoutes)
