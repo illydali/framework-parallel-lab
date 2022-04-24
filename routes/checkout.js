@@ -45,6 +45,7 @@ router.get('/', async (req, res) => {
 
     // step 3: register the session
     let stripeSession = await Stripe.checkout.sessions.create(payment)
+    console.log(payment)
     res.render('checkout/checkout', {
         'sessionId': stripeSession.id, // 4. Get the ID of the session
         'publishableKey': process.env.STRIPE_PUBLISHABLE_KEY
