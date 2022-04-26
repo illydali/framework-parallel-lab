@@ -248,7 +248,7 @@ router.get('/:id/delete', async (req, res) => {
 
 });
 
-router.get('/:id/delete', async (req, res) => {
+router.post('/:id/delete', async (req, res) => {
     // fetch the poster that we want to delete
     const poster = await dataLayer.getPosterId(req.params.id)
 
