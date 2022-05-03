@@ -3,7 +3,8 @@ const router = express.Router();
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const {
-    User
+    User,
+    BlacklistedToken
 } = require('../../models')
 const {
     checkIfAuthenticatedJWT
